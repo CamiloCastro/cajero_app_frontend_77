@@ -3,8 +3,9 @@
     <div class="continer_user_transaction">
       <h2>Transacción {{ username }}</h2>
       <form v-on:submit.prevent="processTransaction">
-        <input type="tetx" v-model="value" placeholder="Valor" />
+        <input type="number" min="0" v-model="value" placeholder="Valor" />
         <br />
+        <span> {{mensajeError}} </span>
         <button type="submit">Hacer Transacción</button>
       </form>
     </div>
@@ -20,6 +21,7 @@ export default {
     return {
       username: "none",
       value: "",
+      mensajeError: ""
     };
   },
   methods: {
@@ -29,19 +31,30 @@ export default {
         username: this.username,
         value: this.value,
       };
-      axios
+
+      if(this.value < 0)
+        this.mensajeError = "El valor de la transacción debe ser positivo FRONT"
+      else {
+        axios
         .put("http://127.0.0.1:8000/user/transaction/", transaction_in, {
           headers: {},
         })
         .then((result) => {
+          this.mensajeError = "";
           alert(
             "Transaction Correcta, Saldo Restante: " +
               result.data.actual_balance
           );
         })
-        .catch((error) => {
-          alert("ERROR Transaction Incorrecta: Saldo Insuficiente");
+        .catch((err) => {
+          if(err.response.status == 400)
+            this.mensajeError = "El valor de la transacción debe ser positivo"
+          else if(err.response.status == 422)
+            this.mensajeError = "El valor de la transacción debe ser numérico"
+          else
+            this.mensajeError = "ERROR Transaction Incorrecta: Saldo Insuficiente";
         });
+      }
     },
   },
   created: function () {
@@ -77,6 +90,10 @@ export default {
 }
 #UserTransaction form {
   width: 50%;
+}
+
+#UserTransaction form span {
+  color: #e71f1f;
 }
 #UserTransaction input {
   height: 40px;

@@ -30,9 +30,46 @@ export default {
     };
   },
   methods: {
+
+    validatePassword: function(pass123) {
+
+      var lowerCaseLetters = /[a-z]/g;
+      var messageError = "";
+
+      if(!pass123.match(lowerCaseLetters)) {
+        messageError += "No hay una minúscula,"
+      }
+
+      // Validate capital letters
+      var upperCaseLetters = /[A-Z]/g;
+      if(!pass123.match(upperCaseLetters)) {
+        messageError += " No hay una mayúscula,"
+      }
+
+      // Validate numbers
+      var numbers = /[0-9]/g;
+      if(!pass123.match(numbers)) {
+        messageError += " No hay un número, "
+      }
+
+      // Validate length
+      if(pass123.length < 5) {
+        messageError += " La longitud debe ser mayor a 8, "
+      }
+
+      return messageError;
+
+    },
+
     processAuthUser: function () {
       var self = this;
-      axios
+
+      var err = this.validatePassword(this.user_in.password);
+      if(err.length > 0)
+        alert(err)
+      else
+      {
+        axios
         .post("http://127.0.0.1:8000/user/auth/", self.user_in, { headers: {} })
         .then((result) => {
           alert("Autenticación Exitosa");
@@ -44,6 +81,10 @@ export default {
           if (error.response.status == "403")
             alert("ERROR 403: Contraseña Erronea.");
         });
+      }
+
+
+      
     },
   },
 };
