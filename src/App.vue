@@ -4,8 +4,15 @@
       <h1>Banco UN</h1>
       <nav>
         <button v-on:click="init" v-if="is_auth">Inicio</button>
-        <button v-on:click="getBalance" v-if="is_auth">Saldo</button>
-        <button v-on:click="doTransaction" v-if="is_auth">Transacción</button>
+
+        <button v-on:click="getBalance" v-if="is_usuario">Saldo</button>
+        <button v-on:click="doTransaction" v-if="is_usuario">Transacción</button>
+        <button v-on:click="doTransfer" v-if="is_usuario">Transferencia</button>
+
+        <button v-on:click="getUserCreation" v-if="is_banco">Crear cuenta</button>
+        <button v-on:click="getModifyBalance" v-if="is_banco">Modificar saldo</button>
+
+        <button v-on:click="getRole" v-if="is_auth">Cambiar rol</button>
         <button v-on:click="logOut" v-if="is_auth">Cerrar Sesión</button>
       </nav>
     </div>
@@ -27,12 +34,16 @@ export default {
   data: function () {
     return {
       is_auth: localStorage.getItem("isAuth") || false,
+      is_banco: localStorage.getItem("current_role") === "BANCO",
+      is_usuario: localStorage.getItem("current_role") === "USUARIO"
     };
   },
   methods: {
     updateAuth: function () {
       var self = this;
       self.is_auth = localStorage.getItem("isAuth") || false;
+      self.is_banco = localStorage.getItem("current_role") === "BANCO";
+      self.is_usuario = localStorage.getItem("current_role") === "USUARIO";
       if (self.is_auth == false) self.$router.push({ name: "user_auth" });
       else {
         let username = localStorage.getItem("current_username");
@@ -40,15 +51,17 @@ export default {
       }
     },
 
-    logIn: function (username) {
+    logIn: function (username, current_role) {
       localStorage.setItem("current_username", username);
       localStorage.setItem("isAuth", true);
+      localStorage.setItem("current_role", current_role);
       this.updateAuth();
     },
 
     logOut: function () {
       localStorage.removeItem("isAuth");
       localStorage.removeItem("current_username");
+      localStorage.removeItem("current_role");
       this.updateAuth();
     },
 
@@ -74,6 +87,34 @@ export default {
         params: { username: username },
       });
     },
+    getRole: function () {
+      let username = localStorage.getItem("current_username");
+      this.$router.push({
+        name: "user_role",
+        params: { username: username },
+      });
+    },
+    getUserCreation: function () {
+      let username = localStorage.getItem("current_username");
+      this.$router.push({
+        name: "user_creation",
+        params: { username: username },
+      });
+    },
+    getModifyBalance: function () {
+      let username = localStorage.getItem("current_username");
+      this.$router.push({
+        name: "user_modify_balance",
+        params: { username: username , type:"modify"},
+      });
+    },
+    doTransfer: function () {
+      let username = localStorage.getItem("current_username");
+      this.$router.push({
+        name: "user_modify_balance",
+        params: { username: username , type: "transfer"},
+      });
+    }
   },
   created: function () {
     this.$router.push({ name: "root" });
@@ -104,7 +145,7 @@ body {
 }
 .header nav {
   height: 100%;
-  width: 45%;
+  width: 55%;
   display: flex;
   justify-content: space-around;
   align-items: center;

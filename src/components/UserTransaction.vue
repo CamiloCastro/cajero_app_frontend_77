@@ -52,7 +52,7 @@ export default {
           else if(err.response.status == 422)
             this.mensajeError = "El valor de la transacción debe ser numérico"
           else
-            this.mensajeError = "ERROR Transaction Incorrecta: Saldo Insuficiente";
+            this.mensajeError = "Saldo Insuficiente";
         });
       }
     },

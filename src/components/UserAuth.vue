@@ -64,16 +64,22 @@ export default {
     processAuthUser: function () {
       var self = this;
 
-      var err = this.validatePassword(this.user_in.password);
-      if(err.length > 0)
-        alert(err)
-      else
-      {
-        axios
+      axios
         .post("http://127.0.0.1:8000/user/auth/", self.user_in, { headers: {} })
         .then((result) => {
-          alert("Autenticación Exitosa");
-          self.$emit("log-in", self.user_in.username);
+
+          if(result.data.length == 0)
+          {
+            alert("El usuario no tiene ningún rol asociado")
+          }
+          else
+          {
+            let role = result.data[0].role_name;
+            alert("Autenticación Exitosa");
+            self.$emit("log-in", self.user_in.username, role);
+          }
+
+          
         })
         .catch((error) => {
           if (error.response.status == "404")
@@ -81,7 +87,9 @@ export default {
           if (error.response.status == "403")
             alert("ERROR 403: Contraseña Erronea.");
         });
-      }
+      
+        
+      
 
 
       
